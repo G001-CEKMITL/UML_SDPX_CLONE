@@ -38,21 +38,21 @@ class User:
         pass
     
     def view_all_posts(self) -> List["Post"]:
-        rows = db.execute("SELECT * FROM post")
+        rows = self.db.execute("SELECT * FROM post")
         columns = [desc[0] for desc in rows.description]
         rows = rows.fetchall()
         rows = [dict(zip(columns, row)) for row in rows]
         return rows
 
     def view_user_posts(self) -> List["Post"]:
-        rows = db.execute("SELECT * FROM post WHERE user_id = (%s)" , [self.user_id])
+        rows = self.db.execute("SELECT * FROM post WHERE user_id = (%s)" , [self.user_id])
         columns = [desc[0] for desc in rows.description]
         rows = rows.fetchall()
         rows = [dict(zip(columns, row)) for row in rows]
         return rows
 
     def view_location_posts(self, location: "Location") -> List["Post"]:
-        rows =db.execute("SELECT * FROM post WHERE location_id = (%s)" , [location])
+        rows =self.db.execute("SELECT * FROM post WHERE location_id = (%s)" , [location])
         columns = [desc[0] for desc in rows.description]
         rows = rows.fetchall()
         rows = [dict(zip(columns, row)) for row in rows]
@@ -81,9 +81,9 @@ class Post:
         try:
             if self.location is not None:
                 quary += "(post_id, content, timestamp, user_id, location_id) VALUES (%s,%s,%s,%s,%s)"
-                db.execute(quary, (self.post_id, self.content, self.timestamp, self.user_id, self.location))
-                db.commit()
-                db.close()
+                self.db.execute(quary, (self.post_id, self.content, self.timestamp, self.user_id, self.location))
+                self.db.commit()
+                self.db.close()
             if self.tagged_friends is not None:
                 for friend in self.tagged_friends:
                     cur.execute("INSERT INTO tagged_friends (post_id,friend_id) VALUES (%s,%s)" ,(self.post_id,friend.user_id))
